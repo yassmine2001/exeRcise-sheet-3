@@ -202,7 +202,7 @@ ggplot(series_films, aes(x = reorder(film, release_date), y = critics_choice, fi
   theme_minimal()
     ```
     
-    
+    by comparing the critic scores of films within the same series, I noticed that the scores tend to be  consistent . However, a common pattern is that the first released film in a series often receives the highest critic score
 
 ## Exercise 4: Open Analysis (4 points)
 
@@ -216,17 +216,45 @@ a)  Go to <https://github.com/owid/owid-datasets/tree/master/datasets>
 b)  Download the dataset and track it in git.
 c)  Put the name / title of the dataset and a link to it below.
 
--   Dataset Name: ...
--   Link: <https://github.com/owid/owid-datasets/>...
+    Dataset Name: Adult obesity by region - FAO (2017)
+    
+    Link: https://github.com/owid/owid-datasets/blob/master/datasets/Adult%20obesity%20by%20region%20-%20FAO%20(2017)/Adult%20obesity%20by%20region%20-%20FAO%20(2017).csv
 
 d)  Come up with a (research) question you want to answer with the data
     and briefly explain why you believe this is an interesting question
     within one sentence. It should be a question that can be answered
     with the dataset and using R.
+    
+    Research Question:
+    
+Which world regions have experienced the highest increases in adult obesity rates from 1975 to 2014?
+
+This question is important because identifying regional trends in obesity can help shape more effective global and regional public health policies.
+
 e)  Use R to answer your chosen question. Please limit your analysis to
     the functions and techniques we have covered so far in the course.
     You are **not expected** to use advanced statistical models or
     external packages which haven't been introduced.
+    
+    ```{r , echo=TRUE} 
+    obesity <- read.csv("Adult obesity by region - FAO (2017).csv")
+    str(obesity)
+    head(obesity)
+    obesity_change <- obesity %>%
+  select(Entity, Year, Obesity = Prevalence.of.obesity.in.adults..18..years.old...FAO..2017..) %>%
+  pivot_wider(names_from = Year, values_from = Obesity) %>%
+  mutate(Change = `2014` - `1975`) %>%
+  arrange(desc(Change))
+   obesity_change 
+   
+   ggplot(obesity_change, aes(x = reorder(Entity, Change), y = Change)) +
+  geom_col(fill = "steelblue") +
+  labs(
+    title = "Increase in Adult Obesity (1975–2014)",
+    x = "Region",
+    y = "Change in Obesity Rate (%)"
+  )
+    ```
 f)  Create a meaningful plot / figure with the dataset. Make sure to
     provide a figure caption (via the chunk options / Rmarkdown) and
     correctly label the figure.
