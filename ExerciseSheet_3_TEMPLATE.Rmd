@@ -74,9 +74,13 @@ a)  Create a new repository on GitHub in your account named
     `exeRcise-sheet-3`. Make sure you create a **public repository** so
     we are able to see it for grading. Add the link to the repository
     below:
+    
+    https://github.com/yassmine2001/exeRcise-sheet-3.git
+    
 b)  Push your code to this new repository by copying and executing the
     snippet on github listed under
     `…or push an existing repository from the command line`.
+    
 c)  Regularly push your latest changes to GitHub again and especially do
     so when you are finished with this sheet.
 
@@ -96,6 +100,26 @@ a)  Load the `pixar_films` dataset into R. Clean the dataset by removing
     for the film rating. Why is this appropriate?
 
 <!-- -->
+```{r , echo=TRUE}
+library(tidyverse)
+pixar_films <- read_csv("C:/Users/yassminejn/Downloads/pixar_films.csv")
+pixar_films <- pixar_films %>%
+  filter(!is.na(film), film != "")
+pixar_films
+unique(pixar_films$film_rating)
+pixar_films <- pixar_films %>%
+  mutate(film_rating_factor = factor(film_rating))
+```
+
+The variable film_rating includes the values : "G", "PG", and "N/A".
+
+G: General audiences: Suitable for all ages
+
+PG: Parental guidance suggested
+
+N/A: Not Available: the film has no official rating listed in the dataset
+
+a factor  represents a set of categorical values with specific meanings. Using it makes it easier to group, summarize, and plot this data appropriately in R.
 
 b)  Inspect the film titles manually. Which films form a film series? A
     film series can be identified by a common word in the titles of the
@@ -103,12 +127,45 @@ b)  Inspect the film titles manually. Which films form a film series? A
     e.g. "Despicable Me" and "Despicable Me 2". Create a dataframe which
     displays a list of the different series with the titles of the films
     and how many films belong to the series. Output the dataframe.
+    
+    ```{r , echo=TRUE}
+    unique(pixar_films$film)
+    library(dplyr)
+    library(stringr)
+    pixar_films <- pixar_films %>%
+  mutate(series = case_when(
+    str_detect(film, "Toy Story") ~ "Toy Story",
+    str_detect(film, "Cars") ~ "Cars",
+    str_detect(film, "Finding") ~ "Finding",
+    str_detect(film, "Incredibles") ~ "Incredibles",
+    str_detect(film, "Monsters") ~ "Monsters",
+    TRUE ~ NA_character_
+  ))
+    series_summary <- pixar_films %>%
+  filter(!is.na(series)) %>%
+  group_by(series) %>%
+  summarise(
+    titles = paste(film, collapse = "; "),
+    count = n(),
+    .groups = "drop"
+  )
+    series_summary
+    ```
 
 c)  Load the `public_response` dataframe into R. Convert the
     `cinema_score` variable into a factor while ensuring the factor
     levels are defined in ascending order, from the lowest to the
     highest score. Combine `public_response` with the `pixar_films`
     dataset using an appropriate merge variable.
+    
+    ```{r , echo=TRUE}  
+    public_response <- read_csv("C:/Users/yassminejn/Downloads/public_response.csv")
+    unique(public_response$cinema_score)
+    cinema_levels <- c("A-", "A", "A+")
+    public_response <- public_response %>%
+  mutate(cinema_score = factor(cinema_score, levels = cinema_levels, ordered = TRUE))
+    sort(public_response$cinema_score)
+    ```
 
 d)  Choose one of the variables representing the public response and
     create a bar plot for the films belonging to a series. Here are the
@@ -124,6 +181,28 @@ d)  Choose one of the variables representing the public response and
 
     What do you notice when comparing the scores of the films in a
     series? Do you see any patterns?
+    
+    ```{r , echo=TRUE}
+    library(dplyr)
+    films_with_scores <- inner_join(pixar_films, public_response, by = "film")
+    films_with_scores
+    series_films <- films_with_scores %>%
+  filter(!is.na(series), !is.na(critics_choice))
+    series_films
+library(ggplot2)
+ggplot(series_films, aes(x = reorder(film, release_date), y = critics_choice, fill = series)) +
+  geom_col() +
+  facet_wrap(~ series, scales = "free_x") +
+  labs(
+    title = "Critics choice for Film Series",
+    x = "Film",
+    y = "Critics choice",
+    fill = "Film Series"
+  ) +
+  theme_minimal()
+    ```
+    
+    
 
 ## Exercise 4: Open Analysis (4 points)
 
