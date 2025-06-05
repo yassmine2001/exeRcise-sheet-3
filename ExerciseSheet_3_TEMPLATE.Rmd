@@ -59,6 +59,7 @@ d)  Name 2 strengths and 2 weaknesses of git. (Don't forget to create a
     
     2-it isn't optimized for handling large files
     
+    
 e)  Knit this exercise sheet. Some new files will automatically be
     generated when knitting the sheet e.g. the HTML page. Ignore these
     files, as we only want to track the source files themselves. You
